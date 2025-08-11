@@ -294,15 +294,34 @@ class PD:
             t2=time.perf_counter() 
             self.logger.debug(f"It took {t2-t1} to get the download links")
             self.logger.debug(links)
-if __name__=="__main__":
+
+def main():
     t1=time.perf_counter()
     if len(sys.argv) >=2:
         print(sys.argv[1])
         pahe=PD(sys.argv[1])
     else:
-        pahe=PD("Elusive samurai",first=5)
+        anime = input("Enter anime: ")
+        if anime != '':
+            first = input("First Episode: ")
+            end = input("Last Episode: ")
+            with open("anime.txt",'w') as f:
+                f.writelines([anime+"\n",first+ "\n",end+ "\n"])
+        else:
+            if os.path.isfile("anime.txt"):
+                with open("anime.txt") as f:
+                    anime = f.readline()
+                    first = int(f.readline())
+                    end = int(f.readline())
+            else:
+                logging.Logger.error("No backup and No Input")
+                return
+        pahe=PD(anime,first=first, end=end)
 
-    i=pahe.download()
+    pahe.download()
     t2=time.perf_counter()
     pahe.logger.info("It took %dseconds"%(t2-t1))
     pahe.logger.info("Done")
+
+if __name__=="__main__":
+    main()
