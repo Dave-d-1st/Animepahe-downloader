@@ -3,6 +3,8 @@ import requests
 import json
 import time
 from rich.progress import Progress, SpinnerColumn, BarColumn, TimeRemainingColumn, TransferSpeedColumn
+
+import sorter
 def c_time(s):
     seconds=int(s)%(24*3600*365)
     years=seconds//(365*3600*24)
@@ -28,7 +30,7 @@ def c(s):
         s/=1024.0
 
 def download(url:str,name=None,*headers:list):
-    path=r'D:\Anime'+'\\'
+    path=r'Animes/'
     header={
      "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203"
     }
@@ -77,14 +79,12 @@ def download(url:str,name=None,*headers:list):
                 for chunk in r.iter_content(chunk_size=1024*512):
                     t2=time.perf_counter()
                     f.write(chunk)
-                    if progress.tasks[0].percentage >=25:
-                        break
                     if t2-t1>=1:
                         progress.update(task,  completed=os.path.getsize(filepath))
                         t1=time.perf_counter()
                         
         print('\n')
-    return filesize/(1024*1024)
+    return filesize
 def download_links():
     sum=0
     path=r"links.json"
@@ -97,6 +97,7 @@ def download_links():
         else:
             sum+=download(link)
     print(f"The total download size is {c(sum)}")
+    sorter.sorter()
 
 if __name__=="__main__":
     download_links()

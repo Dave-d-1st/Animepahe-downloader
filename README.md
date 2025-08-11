@@ -15,6 +15,7 @@ Then run the script to get the download links (**anime.txt**)
 You would be prompted to enter the anime name, first episode and last episode.    
 Then it searches for the anime and prompts you to pick the anime you want to download.    
 After this it automatically gets the download links and write it to links.json and download it afterwards.   
+Leave first empty to get from the beginning and Leave end empty to get till the end.
 
 ---
 
@@ -26,3 +27,8 @@ You can set if the links to append to the old links or if it should overwrite th
 Incase you have already gotten the links but during download it paused just run only the download file    
 `python download.py`
 This will download without having getting the links again
+ 
+---
+
+For the last part the download files are sorted into their own folders(**sorter.py**)    
+You can cancel the code at anytime by pressing ctrl+c in the terminal

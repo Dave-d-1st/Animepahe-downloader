@@ -131,9 +131,6 @@ class PD:
                 episodes_json: dict[str:any] = r.json()
                 episdoes_dict: list[dict] = []
                 episdoes_dict += episodes_json["data"]
-                with open(os.getcwd() + "/ ".strip() + "episodes1.json", "w") as f:
-                    json.dump(episdoes_dict, f, indent=2)
-                    self.logger.debug("Updated episodes1.json")
                 br = False
                 while episodes_json["next_page_url"] != None:
                     for x in episdoes_dict:
@@ -358,7 +355,6 @@ def main():
         help="If the code should append the new links to the old links in links.json, defaults to false",
     )
     args = parse.parse_args()
-    print(args.should_append)
     anime = input("Enter anime: ")
     if anime != "":
         first = input("First Episode: ")
@@ -368,13 +364,22 @@ def main():
     else:
         if os.path.isfile("anime.txt"):
             with open("anime.txt") as f:
-                anime = f.readline()
-                first = int(f.readline())
-                end = int(f.readline())
+                anime = f.readline().strip()
+                first = f.readline().strip()
+                end = f.readline().strip()
         else:
-            logging.Logger.error("No backup and No Input")
+            logging.Logger("Error").error("No backup and No Input")
             return
-        pahe = PD(anime, first=first, end=end,should_append=args.should_append)
+    if first=="":
+        first = None
+    else:
+        first = int(first)
+    if end =="":
+        end = None
+    else:
+        end = int(end)
+    
+    pahe = PD(anime, first=first, end=end,should_append=args.should_append)
 
     pahe.download()
     t2 = time.perf_counter()
