@@ -4,6 +4,7 @@ A script that downloads anime from animepahe.ru
 ---
 
 Install the requirements first
+
 `pip install -r requirements.txt`
 
 ---
