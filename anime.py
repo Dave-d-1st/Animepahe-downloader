@@ -1,5 +1,4 @@
 import argparse
-import sys
 import os
 import time
 import json
@@ -10,7 +9,6 @@ from kwik_extractor import token_extractor
 import re
 from bs4 import BeautifulSoup
 import bs4
-import time
 
 my_repo_folder = os.path.dirname(__file__)
 
@@ -61,12 +59,12 @@ class PD:
                     {n["title"]: [n["session"], n["episodes"]]}
                     for n in search_json["data"]
                 ]
-                if auto == False:
+                if not auto:
                     for x in self.search_results:
                         print(
                             "%i) %s(%i episodes)"
                             % (
-                                self.search_results.index(x),
+                                self.search_results.index(x)+1,
                                 list(x.keys())[0],
                                 list(x.values())[0][1],
                             )
@@ -74,8 +72,10 @@ class PD:
                     count: int = 0
                     while True:
                         ins: str = input("Pick anime: ")
+                        if ins=="":
+                            ins=1
                         try:
-                            ins = int(ins)
+                            ins = int(ins)-1
                         except ValueError:
                             pass
                         if (
@@ -99,7 +99,7 @@ class PD:
                         self.logger.debug(f"Search Results: {self.search_result}")
                     else:
                         exit()
-                elif auto == True:
+                elif auto:
                     self.search_result: dict[str:str] = self.search_results[0]
                     self.logger.debug(f"Search Results: {self.search_result}")
             else:
@@ -114,9 +114,6 @@ class PD:
         url: str = "https://animepahe.ru/api?m=release&id=%s&sort=episode_asc&page=" % (
             anime_id
         )
-        header: dict[str:str] = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203"
-        }
         self.logger.info("Getting Episode Id List...")
         try:
             r: requests.Response = requests.get(url + "1", headers=self.headers)
@@ -132,13 +129,13 @@ class PD:
                 episdoes_dict: list[dict] = []
                 episdoes_dict += episodes_json["data"]
                 br = False
-                while episodes_json["next_page_url"] != None:
+                while episodes_json["next_page_url"] is not None:
                     for x in episdoes_dict:
                         # print(x['episode2'],x['episode'])
                         if x["episode2"] >= last or x["episode"] >= last:
                             br: bool = True
                             break
-                        if br == True:
+                        if br:
                             break
                         url: str = (
                             "https://animepahe.ru/api?m=release&id=%s&sort=episode_asc&page="
@@ -149,7 +146,7 @@ class PD:
                         if x["episode2"] >= last or x["episode"] >= last:
                             br: bool = True
                             break
-                    if br == True:
+                    if br:
                         break
                     url: str = (
                         "https://animepahe.ru/api?m=release&id=%s&sort=episode_asc&page="
@@ -168,8 +165,8 @@ class PD:
                         json.dump(episdoes_dict, f, indent=2)
                         self.logger.debug("Updated episodes1.json")
                 t2: float = time.perf_counter()
-                self.logger.debug(f"Time to make requests is %s seconds", sum)
-                self.logger.debug(f"Time to get all episodes id is %s seconds", t2 - t1)
+                self.logger.debug("Time to make requests is %s seconds", sum)
+                self.logger.debug("Time to get all episodes id is %s seconds", t2 - t1)
                 self.logger.info("Retrieved Episode Id List")
                 return anime_id, episdoes_dict
                 # episodes=episodes_json['data']
@@ -196,7 +193,7 @@ class PD:
                     else:
                         pass
                 else:
-                    if link_soup == None:
+                    if link_soup is None:
                         self.logger.info("No resolution")
                         link_soup: bs4.Tag = links_soup[-1]
                 link: str = link_soup["href"]
@@ -208,15 +205,15 @@ class PD:
                 try:
                     r: requests.Response = requests.get(link, headers=headersp)
 
-                except:
+                except Exception:
                     retry = True
                     count = 0
                     self.logger.debug("Failed to retrieve, Trying Again...")
-                while retry == True and count <= 10:
+                while retry and count <= 10:
                     try:
                         r: requests.Response = requests.get(link, headers=headersp)
                         retry: bool = False
-                    except:
+                    except Exception:
                         pass
                     count += 1
                     self.logger.debug(f"Attempt No. {count}")
@@ -301,7 +298,7 @@ class PD:
                     download_url = resp_headers.headers["location"]
                     self.logger.debug(f"The Download url is {download_url}")
                     return download_url
-                except:
+                except Exception:
                     self.logger.info("Stupid Nigga")
         except requests.ConnectionError:
             self.logger.critical("No Network")
@@ -370,16 +367,16 @@ def main():
         else:
             logging.Logger("Error").error("No backup and No Input")
             return
-    if first=="":
+    if first == "":
         first = None
     else:
         first = int(first)
-    if end =="":
+    if end == "":
         end = None
     else:
         end = int(end)
-    
-    pahe = PD(anime, first=first, end=end,should_append=args.should_append)
+
+    pahe = PD(anime, first=first, end=end, should_append=args.should_append)
 
     pahe.download()
     t2 = time.perf_counter()

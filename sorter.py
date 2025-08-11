@@ -1,6 +1,4 @@
 import os
-import json
-from pprint import pprint
 import re
 def sorter():
     path=r"Animes/"
@@ -20,9 +18,7 @@ def sorter():
             else:
                 search=pattern.search(file)
                 name=search.group(1)
-                print(name)
                 if os.path.isdir(path+name):
-                    print(path,name)
                     os.rename(path+file,path+name+"\\"+file)
                 else:
                     os.mkdir(path+name)
